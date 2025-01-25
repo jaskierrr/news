@@ -1,0 +1,71 @@
+services:
+  postgres:
+    container_name: news_postgres
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 3s
+      timeout: 2s
+      retries: 5
+    volumes:
+      - ./data/postgers-data:/var/lib/postgresql/pgdata
+    ports:
+      - "5433:5433"
+    restart: no
+
+  pgadmin:
+    container_name: news_pgadmin
+    image: dpage/pgadmin4:8.12
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    restart: no
+
+  news:
+    container_name: news_app
+    image: news_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    deploy:
+      restart_policy:
+        condition: no
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+
+  migrate:
+    container_name: news_migrater
+    image: migrate/migrate
+    deploy:
+      restart_policy:
+        condition: no
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .\migrations:/database
+    command: [ "-path", "/database", "-database", "postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=disable", "up" ]
+
+volumes:
+  postgers-data:
+  pgadmin-data:
