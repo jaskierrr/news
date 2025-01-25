@@ -7,6 +7,7 @@ import (
 
 func (r *repository) CreateNews(ctx context.Context, params models.News) (models.News, error) {
 
-	r.db.GetConn()
+	// r.db.
+
 	return models.News{}, nil
 }

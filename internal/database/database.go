@@ -16,21 +16,8 @@ import (
 
 // const dbConfigString = "postgres://%s:%s@%s:%s/%s"
 
-type db struct {
-	logger *slog.Logger
-	conn   *reform.DB
-}
 
-type DB interface {
-	NewConn(config config.Config, logger *slog.Logger) DB
-	GetConn() *reform.DB
-}
-
-func NewDB() DB {
-	return &db{}
-}
-
-func (d *db) NewConn( config config.Config, logger *slog.Logger) DB {
+func NewDB(config config.Config, logger *slog.Logger) *reform.DB {
 	// connString := fmt.Sprintf(dbConfigString, config.Database.User, config.Database.Password, config.Database.Host, config.Database.Port, config.Database.Name)
 
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
@@ -56,12 +43,5 @@ func (d *db) NewConn( config config.Config, logger *slog.Logger) DB {
 		slog.Any("data", dbPostgres))
 
 
-	return &db{
-		logger: logger,
-		conn:   dbPostgres,
-	}
-}
-
-func (db *db) GetConn() *reform.DB {
-	return db.conn
+	return dbPostgres
 }

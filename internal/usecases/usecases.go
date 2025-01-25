@@ -12,11 +12,11 @@ type usecase struct {
 	repo   repositories.Repository
 }
 
-type Usecase interface {
+type Usecases interface {
 	CreateNews(ctx context.Context, params models.News) (models.News, error)
 }
 
-func New(repo repositories.Repository, logger *slog.Logger) Usecase {
+func New(repo repositories.Repository, logger *slog.Logger) Usecases {
 	return &usecase{
 		repo:   repo,
 		logger: logger,

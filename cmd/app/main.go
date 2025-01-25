@@ -1,27 +1,27 @@
 package main
 
 import (
+	"fmt"
 	"main/bootstrapper"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func main()  {
-	err := bootstrapper.New().RunAPI()
-
-	if err != nil {
-		return
-	}
+	bootstrapper.New().RunAPI()
 
 	app := fiber.New()
 
-	app.Get("/", get)
+	app.Get("/", GetNews)
 
 
-	app.Listen(":3000")
+	app.Listen(":8080")
 
 }
 
-func get(c *fiber.Ctx) error {
+
+
+func GetNews(c *fiber.Ctx) error {
+	fmt.Println("Hello, World!")
 	return c.JSON("Hello, World!")
 }

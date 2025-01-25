@@ -5,7 +5,9 @@ import (
 	"main/config"
 	"main/internal/database"
 	logger "main/internal/lib/logger"
+	"main/internal/usecases"
 
+	"gopkg.in/reform.v1"
 )
 
 var Secret string = ""
@@ -14,19 +16,19 @@ type RootBootstrapper struct {
 	Infrastructure struct {
 		Logger *slog.Logger
 		// Server *restapi.Server
-		DB     database.DB
+		DB     *reform.DB
 	}
 	// Controller   controller.Controller
 	Config       *config.Config
 	// Handlers     handlers.Handlers
 	// Repository   repo.Repository
-	// Service      service.Service
+	Usecases      usecases.Usecases
 }
 
 type RootBoot interface {
-	registerRepositoriesAndServices(db database.DB)
-	registerAPIServer(cfg config.Config) error
-	RunAPI() error
+	registerRepositoriesAndServices(db *reform.DB)
+	// registerAPIServer(cfg config.Config)
+	RunAPI()
 }
 
 func New() RootBoot {
@@ -35,40 +37,24 @@ func New() RootBoot {
 	}
 }
 
-func (r *RootBootstrapper) RunAPI() error {
+func (r *RootBootstrapper) RunAPI()  {
 	r.Infrastructure.Logger = logger.NewLogger(r.Config.LogLevel)
 
 	r.registerRepositoriesAndServices(r.Infrastructure.DB)
-	err := r.registerAPIServer(*r.Config)
-	if err != nil {
-		return err
-	}
+	// r.registerAPIServer(*r.Config)
 
-	return err
+	// return r.Handlers
 }
 
-func (r *RootBootstrapper) registerRepositoriesAndServices(db database.DB) {
+func (r *RootBootstrapper) registerRepositoriesAndServices(db *reform.DB) {
 	logger := r.Infrastructure.Logger
-	r.Infrastructure.DB = database.NewDB().NewConn(*r.Config, logger)
+	r.Infrastructure.DB = database.NewDB(*r.Config, logger)
 	// r.Repository = repo.NewUserRepo(r.Infrastructure.DB, logger)
 	// r.Service = service.New(r.Repository, r.ExternalRepo, logger)
 }
 
-func (r *RootBootstrapper) registerAPIServer(cfg config.Config) error {
-	// logger := r.Infrastructure.Logger
+// func (r *RootBootstrapper) registerAPIServer(cfg config.Config) {
+// 	logger := r.Infrastructure.Logger
 
-	// r.Handlers = handlers.New(r.Controller, logger)
-	// r.Handlers.Link(api)
-	// if r.Handlers == nil {
-	// 	return err
-	// }
-
-	// r.Infrastructure.Server = restapi.NewServer(api)
-	// r.Infrastructure.Server.Port = cfg.ServerPort
-	// r.Infrastructure.Server.ConfigureAPI()
-	// if err := r.Infrastructure.Server.Serve(); err != nil {
-	// 	log.Fatalln(err)
-	// }
-
-	return nil
-}
+// 	r.Handlers = handlers.New(r.Usecases, logger)
+// }
