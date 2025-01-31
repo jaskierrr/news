@@ -2,12 +2,13 @@ package bootstrapper
 
 import (
 	"log/slog"
+
+	"gopkg.in/reform.v1"
+
 	"main/config"
 	"main/internal/database"
 	logger "main/internal/lib/logger"
 	"main/internal/usecases"
-
-	"gopkg.in/reform.v1"
 )
 
 var Secret string = ""
@@ -16,13 +17,13 @@ type RootBootstrapper struct {
 	Infrastructure struct {
 		Logger *slog.Logger
 		// Server *restapi.Server
-		DB     *reform.DB
+		DB *reform.DB
 	}
 	// Controller   controller.Controller
-	Config       *config.Config
+	Config *config.Config
 	// Handlers     handlers.Handlers
 	// Repository   repo.Repository
-	Usecases      usecases.Usecases
+	Usecases usecases.Usecases
 }
 
 type RootBoot interface {
@@ -37,7 +38,7 @@ func New() RootBoot {
 	}
 }
 
-func (r *RootBootstrapper) RunAPI()  {
+func (r *RootBootstrapper) RunAPI() {
 	r.Infrastructure.Logger = logger.NewLogger(r.Config.LogLevel)
 
 	r.registerRepositoriesAndServices(r.Infrastructure.DB)
